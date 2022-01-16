@@ -1,0 +1,9 @@
+---
+- hosts: windows
+  gather_facts: no
+  tasks:
+   - name: Get disk facts
+     win_command: wmic cpu get caption, deviceid, name, numberofcores, maxclockspeed, status
+     register: usage
+
+   - debug: msg="{{ usage.stdout }}"

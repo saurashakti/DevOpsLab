@@ -4,16 +4,15 @@
   gather_facts: no
   tasks:
     - name: Run PS1 script
-      win_shell: C:\temp\Read-eventlog.ps1 
-      args:
-        chdir: C:\Temp
+      #win_shell: C:\temp\Read-eventlog.ps1 
+      win_command: Powershell -executionpolicy bypass C:\temp\Read-eventlog.ps1 
       register: PS1_result
       #win_shell: |
       #  $slogs = Get-WinEvent -LogName "Microsoft-Windows-PowerShell/Operational" -MaxEvents 10 | select TimeCreated, Message | Where-Object {$_.message -like "*console*"}
       #  echo $slogs
       
     - debug: 
-       var: PS1_result.stdout
+       msg: "{{ PS1_result.stdout }}"
 
        
        
