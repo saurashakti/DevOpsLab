@@ -1,0 +1,13 @@
+---
+
+ - hosts: windows
+   gather_facts: no
+   tasks:
+    - name: Create a new User 
+      win_user:
+       name: Shakti
+       password: MyP4ssw0rd
+       state: present 
+       groups:
+        - Users
+      when: ansible_os_family == 'Windows'

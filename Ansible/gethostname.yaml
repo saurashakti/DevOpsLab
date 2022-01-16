@@ -1,0 +1,11 @@
+---
+- name: get host name
+  hosts: windows
+  tasks:
+    - name: PS command to get host name
+      win_shell: |
+        $hname = $env:ComputerName
+        echo $hname
+      register: ps_out
+    - debug:
+        msg: "{{ ps_out.stdout }}"
