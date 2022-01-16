@@ -1,0 +1,13 @@
+---
+# Name: Test Windows connection
+- hosts: windows
+  tasks:
+  - name: Check if service is available
+    win_service:
+       name: SNMPTRAP
+    register: service_info
+- name: Configure BITS service
+  win_service:
+    name: SNMPTRAP
+    state: strted
+    start_mode: auto

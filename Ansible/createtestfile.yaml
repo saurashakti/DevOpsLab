@@ -1,0 +1,11 @@
+---
+ - name: Ansible win_shell module example 
+   remote_user: clientadmin # local Windows user to connect with
+   hosts: windows # remote host group
+   tasks:
+ #   - name: Single line PowerShell # Running single command using win_shell module
+ #     win_shell: C:\temp\one.ps1
+    - name: Run multi-lined shell commands 
+      win_shell: |
+        $text = ' Iam Author of ATA'
+        Set-Content -Path C:\temp\test3.txt -Value $text 
