@@ -1,0 +1,15 @@
+---
+- name: test calling PS1
+  gather_facts: no
+  hosts: windows
+  vars:
+   - MaxEvents: 10
+   - LogName: "Microsoft-Windows-PowerShell/Operational"
+   - searchstring: "Console"
+  tasks:
+   - name: Execute the PS script
+     script: Read-eventlogsParamsBlock.ps1 -LogName {{ LogName }} -MaxEvents {{ MaxEvents }} -searchstring {{ searchstring }}
+     register: outps
+
+   - debug:
+       msg: "{{ outps.stdout }}"
