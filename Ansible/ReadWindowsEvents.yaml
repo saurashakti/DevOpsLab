@@ -1,0 +1,21 @@
+---
+- name: Script to search for an event in Windows
+  hosts: windows
+  vars:
+   - MaxEvents: 10
+   - LogName: "Microsoft-Windows-PowerShell/Operational"
+   - searchstring: "Console"
+  gather_facts: no
+  tasks:
+    - name: Run PS1 script
+      win_shell: Get-WinEvent -LogName {{ LogName }} -MaxEvents {{ MaxEvents }} | select-object TimeCreated, Message | Where-Object {$_.message -like "* {{ searchstring }} *"} |format-table -AutoSize 
+      register: PS1_result
+      #win_shell: |
+      #  $slogs = Get-WinEvent -LogName "Microsoft-Windows-PowerShell/Operational" -MaxEvents 10 | select TimeCreated, Message | Where-Object {$_.message -like "*console*"}
+      #  echo $slogs
+      
+    - debug: 
+       msg: "{{ PS1_result.stdout }}"
+
+       
+       
