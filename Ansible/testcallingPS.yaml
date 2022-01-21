@@ -4,8 +4,8 @@
   hosts: all
   vars:
    - MaxEvents: 10
-   - LogName: "Microsoft-Windows-PowerShell/Operational"
-   - searchstring: "Console"
+   - LogName: "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational"
+   - searchstring: "ClientAdmin"
   tasks:
    - name: Execute the PS script
      script: Read-eventlogsParams.ps1 -LogName {{ LogName }} -MaxEvents {{ MaxEvents }} -searchstring {{ searchstring }}
