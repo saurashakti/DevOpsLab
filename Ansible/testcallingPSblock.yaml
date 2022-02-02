@@ -1,7 +1,7 @@
 ---
 - name: test calling PS1
   gather_facts: no
-  hosts: SiteA
+  hosts: siteA
   vars:
    - MaxEvents: 10
    - LogName: "Microsoft-Windows-PowerShell/Operational"

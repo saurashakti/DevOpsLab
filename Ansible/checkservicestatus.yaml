@@ -1,0 +1,15 @@
+---
+- hosts: siteA
+  tasks:
+  - name: check status of SNMP service
+    win_shell: |
+       $svcname = "SNMPTRAP1"
+       Get-Service $svcname -ErrorAction SilentlyContinue
+    register: service_info
+    failed_when: service_info is not defined
+  - debug:
+      msg: "{{ service_info.stdout }}"
+
+  - debug: msg="Service not found.."
+    when: service_info.state is not defined or service_info.name is not defined
+

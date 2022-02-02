@@ -1,2 +1,2 @@
 dns_name: shdom.com
-safe_mode_password: "{{ vault_password }}"
+safe_mode_password: "shdomadmin1"

@@ -1,0 +1,12 @@
+- name: Create new Windows domain in a new forest with specific parameters
+  hosts: shdc
+  ansible.windows.win_domain:
+    create_dns_delegation: no
+    database_path: C:\Windows\NTDS
+    dns_domain_name: shdom.com
+    domain_mode: Win2019
+    domain_netbios_name: ANSIBLE
+    forest_mode: Win2019
+    safe_mode_password: password123!
+    sysvol_path: C:\Windows\SYSVOL
+  register: domain_install

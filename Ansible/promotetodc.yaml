@@ -2,7 +2,7 @@
   hosts: shdc
   vars_files:
    - dcpromo/vars_win.yaml
-   - dcpromo/vault_win.yaml
+   #- dcpromo/vault_win.yaml
   gather_facts: yes
   tasks:
    - name: install ad

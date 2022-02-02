@@ -1,0 +1,12 @@
+---
+- name: test calling PS1
+  gather_facts: no
+  hosts: siteA
+  
+  tasks:
+   - name: Execute the PS script
+     script: liloinfo.ps1 
+     register: outps
+
+   - debug:
+       msg: "{{ outps.stdout }}"
