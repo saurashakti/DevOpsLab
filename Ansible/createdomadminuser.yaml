@@ -1,6 +1,7 @@
 ---
 - name: "Create a new domain admin account"
   hosts: shdc
+  gather_facts: no
   tasks:
     - name: Creating domain user shdomadmin
       win_shell: |
@@ -11,6 +12,7 @@
         $username = "shdomadmin"
         New-ADUser -Name $fullName -GivenName $givenName -Surname $surName -SamAccountName "$username" -UserPrincipalName "$username@shdom.com" -AccountPassword $pass -Enabled $true
         Add-ADGroupMember -Identity "Domain Admins" -Members "$username"
+        Enable-ADAccount -Identity "$username"
       register: ps_out
     - debug:
         msg: "{{ ps_out.stdout }}"

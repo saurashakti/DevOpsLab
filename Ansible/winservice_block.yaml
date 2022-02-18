@@ -1,0 +1,18 @@
+#tasks:
+  - block:
+     # try to stop the service
+     - name: stopping service and setting state as disabled
+       win_service:
+         name: "{{ item }}"
+         state: stopped
+         start_mode: disabled
+       register: srv_state
+     - debug: 
+        msg: "Service {{ item }} status is {{ srv_state.state }} with start mode {{  srv_state.start_mode }} "  
+     # in case the service can not be stopped, kill its process 
+    rescue: 
+     - name: Kill process of service
+       win_command: taskkill /f /fi "Services eq {{ item }}"
+     - debug: 
+        msg: "KILL process of service {{ item }}"  
+    

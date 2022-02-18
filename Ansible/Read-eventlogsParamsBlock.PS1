@@ -7,7 +7,7 @@ param(
 
 try {
         write-host "Looking for top $MaxEvents in the event log $LogName for the search criteria $searchstring ..."
-        $slog = Get-WinEvent -LogName $LogName -MaxEvents $MaxEvents | select-object TimeCreated, Message | Where-Object {$_.message -like "*$searchstring*"} |format-table -wrap | Out-String
+        $slog = Get-WinEvent -LogName $LogName -MaxEvents $MaxEvents | select-object TimeCreated, Message | Where-Object {$_.message -like "*$searchstring*"} |format-table -autosize -wrap | Out-String
         if($slog)
         {
             write-host $slog

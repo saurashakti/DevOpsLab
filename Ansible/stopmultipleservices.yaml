@@ -1,0 +1,15 @@
+---
+- name: stop multiple services with block condition
+  hosts: siteA
+  
+  tasks:
+  - name: stop below services
+    block:
+     # try to stop the service
+     - win_service:
+        name: "{{ item }}"
+        state: stopped
+       with_items:
+        - netlogon
+        - spooler
+

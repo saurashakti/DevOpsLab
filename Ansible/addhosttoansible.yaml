@@ -1,0 +1,6 @@
+- name: Add host to multiple groups
+  add_host:
+    hostname: '192.168.1.40'
+    groups:
+    - group1
+    - group2

@@ -1,0 +1,12 @@
+---
+- name: Stop multiple services using block
+  hosts: siteA
+
+  vars:
+    winservice:
+      - netlogon
+      - spooler
+  tasks:
+    - name: stop the services
+      include_tasks: winservice_block.yaml
+      loop: "{{ winservice }}"

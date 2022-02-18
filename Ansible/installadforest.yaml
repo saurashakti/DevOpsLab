@@ -1,0 +1,85 @@
+---
+- name: Create new Active-Directory Forest & Domain
+  hosts: shdc
+  tasks:
+   - name: Change the hostname to shdomdc
+     win_hostname:
+       name: shdomdc
+     register: res
+
+   - name: Reboot
+     win_reboot:
+       #msg: "Reboot initiated by Ansible"
+       connect_timeout: 5
+       reboot_timeout: 100
+       pre_reboot_delay: 0
+       post_reboot_delay: 10
+       test_command: whoami
+     when: res.reboot_required
+
+   - name: install AD forest
+     win_feature:
+       name: AD-Domain-Services
+       state: present
+   
+   - name: Configuring AD Domain Services
+     win_shell: |
+       #Write-host "Installing ADDS.."
+       #Install-WindowsFeature -Name AD-Domain-Services
+       $Password = ConvertTo-SecureString "shdompassword1" -AsPlainText -Force
+       Write-host "Creating parameters.."
+       $Params = @{
+       #CreateDnsDelegation = $false
+       DatabasePath = 'C:\Windows\NTDS'
+       DomainMode = 'WinThreshold'
+       DomainName = 'shdom.com'
+       DomainNetbiosName = 'shdom'
+       ForestMode = 'WinThreshold'
+       InstallDns = $true
+       LogPath = 'C:\Windows\NTDS'
+       NoRebootOnCompletion = $true
+       SafeModeAdministratorPassword = $Password
+       SysvolPath = 'C:\Windows\SYSVOL'
+       Force = $true
+       }
+       Write-host "Creating and configuring AD forest.."
+       Install-ADDSForest @Params
+
+   - name: Rebooting the host
+     win_reboot:
+       #msg: "Reboot initiated by Ansible"
+       connect_timeout: 5
+       reboot_timeout: 100
+       pre_reboot_delay: 0
+       post_reboot_delay: 10
+       test_command: whoami
+
+   - name: creating DNS Reverse lookup
+     # source: https://www.readandexecute.com/how-to/server-2016/dns/configure-reverse-lookup-zone-with-powershell-windows-server-core-2016/
+     win_shell: |
+       Write-host "Adding a Reverse lookup zone for network ID 192.168.56.0/24.."
+       Add-DnsServerPrimaryZone -NetworkID "192.168.56.0/24" -ReplicationScope "Domain"
+
+   - name: creating Ptr record
+     win_shell: |    
+       Write-host "Creating a Ptr record for the domain.."
+       Add-DnsServerResourceRecordPtr -Name "105" -ZoneName "56.168.192.in-addr.arpa" -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName "shdom.com"
+
+   - name: disable password complexity
+     win_shell: |
+        secedit /export /cfg c:\secpol.cfg
+        (gc C:\secpol.cfg).replace("PasswordComplexity = 1", "PasswordComplexity = 0") | Out-File C:\secpol.cfg
+        secedit /configure /db c:\windows\security\local.sdb /cfg c:\secpol.cfg /areas SECURITYPOLICY
+        rm -force c:\secpol.cfg -confirm:$false
+
+   - name: create a domain admin user
+     win_shell: |
+        $pass = "shdomadmin1" | ConvertTo-SecureString -AsPlainText -Force
+        $givenName = "ShDom"
+        $surName = "admin"
+        $fullName = "$givenName $surName"
+        $username = "shdomadmin"
+        New-ADUser -Name $fullName -GivenName $givenName -Surname $surName -SamAccountName "$username" -UserPrincipalName "$username@shdom.com" -AccountPassword $pass -Enabled $true
+        Add-ADGroupMember -Identity "Domain Admins" -Members "$username"
+        Enable-ADAccount -Identity "$username"
+       

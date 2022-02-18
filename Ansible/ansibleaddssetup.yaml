@@ -1,0 +1,62 @@
+---
+- name: Setup Forest and Domain
+  hosts: shdc
+  vars:
+    ansible_ssh_user: dcserver
+    ansible_ssh_pass: dcserver1
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+
+  tasks:  
+   - name: Change the hostname to shdomdc
+     win_hostname:
+       name: shdomdc
+     register: res
+
+   - name: Reboot
+     win_reboot:
+       #msg: "Reboot initiated by Ansible"
+       connect_timeout: 5
+       reboot_timeout: 100
+       pre_reboot_delay: 0
+       post_reboot_delay: 10
+       test_command: whoami
+     when: res.reboot_required
+
+   - name: Install AD Services feature
+     win_feature:
+      name: AD-Domain-Services
+      include_management_tools: yes
+      include_sub_features: yes
+      state: present
+     register: result
+
+   - name: Reboot after creation
+     win_reboot:
+      msg: "Server config in progress; rebooting..."
+      connect_timeout: 5
+      reboot_timeout: 100
+      pre_reboot_delay: 0
+      post_reboot_delay: 10
+      test_command: whoami
+     when: result.reboot_required
+
+   - name: Ensure primary DNS zone is present
+     # source: https://docs.w3cub.com/ansible~2.10/collections/community/windows/win_dns_zone_module
+     community.windows.win_dns_zone:
+      name: shdom
+      replication: domain
+      type: primary
+      state: present
+
+   - name: Create a primary Zone for DNS
+     win_shell: |
+       Write-host "Adding a Primary zone for network ID 192.168.1.0/24.."
+       Add-DnsServerPrimaryZone -NetworkID "192.168.1.0/24" -ReplicationScope "Domain"
+
+   - name: Create PTR record
+     win_dns_record:
+       name: "36"
+       type: "PTR"
+       value: "shdom"
+       zone: "1.168.192.in-addr.arpa"

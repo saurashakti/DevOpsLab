@@ -1,0 +1,8 @@
+---
+- name: Adding user shdomadmin to Domain Admins group
+  hosts: shdc
+  gather_facts: no
+  tasks:
+    - win_shell: |
+       $adduser = Add-adgroupmember -identity "Domain admins" -members shdomadmin
+       $adduser

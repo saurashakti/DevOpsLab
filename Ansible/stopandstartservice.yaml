@@ -1,0 +1,10 @@
+---
+- name: Set service startup mode to auto and ensure it is started
+  hosts: siteB
+  tasks:
+  - name: set print spooler service to manual mode on host B
+    win_service:
+     name: spooler
+     start_mode: manual
+     state: started
+

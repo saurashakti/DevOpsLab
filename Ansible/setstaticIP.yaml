@@ -1,0 +1,16 @@
+---
+- name: Setting static IP address
+  hosts: shdc
+  gather_facts: no
+  tasks:
+    - name: set static IP accress
+      win_shell: |
+       $adapter = Get-NetAdapter | ? {$_.Status -eq "up"}
+       # Remove any existing IP, gateway from our ipv4 adapter
+       If (($adapter | Get-NetIPConfiguration).IPv4Address.IPAddress) {
+         $adapter | Remove-NetIPAddress -AddressFamily "IPv4" -Confirm:$false
+       }
+       If (($adapter | Get-NetIPConfiguration).Ipv4DefaultGateway) {
+        $adapter | Remove-NetRoute -AddressFamily "IPv4" -Confirm:$false
+       }
+       New-netIPAddress -AddressFamily "IPv4" -IPAddress 192.168.1.36 -prefixlength 24 -interfacealias "Ethernet"
